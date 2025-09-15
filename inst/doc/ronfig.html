@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.7">
+<title>Configuration files for R projects</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/css/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/css/callout.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/css/article.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.14/css/prism-xcode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/sidenotes.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/copy-button.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/callout.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/toc-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>Configuration files for R projects</h1></div>
+</div>
+<div class="body">
+<div id="TOC">
+<ul>
+<li><a href="#sec:example">Example</a>
+<ul>
+<li><a href="#sec:configuration-file">Configuration file</a></li>
+<li><a href="#sec:loading">Loading</a></li>
+</ul>
+</li>
+<li><a href="#sec:related-work">Related work</a></li>
+</ul>
+</div>
+<p>ronfig aims to enable intuitive configuration of R projects via a single
+function, <code>load_config()</code>. It’s raison d’être is to handle the situation where
+you have multiple, somewhat overlapping, parameter configurations that you
+want to quickly switch between whilst avoiding, potentially error-inducing, copy
+and paste.</p>
+<p>To keep things simple, rather than introducing another language for our
+configuration file, we restrict ourselves to a subset of base R. Currently we
+allow the following set of functions/operators:</p>
+<ul>
+<li>&lt;-, =, +, -, *, :,</li>
+<li>as.Date (for character inputs),</li>
+<li>array, matrix,</li>
+<li>list, data.frame,</li>
+<li>c,</li>
+<li>length,</li>
+<li>seq (for numeric and date inputs),</li>
+<li>sequence (for numeric inputs),</li>
+<li>seq_len, seq_along,</li>
+<li>Sys.Date and Sys.time.</li>
+</ul>
+<div class="callout-note" data-legend="Implementation">
+<p>This use of a reduced subset of R is primarily to ensure that loading a
+configuration file has no side-effects on a users environment and performs
+limited computation. Under the hood, <code>load_config()</code> is little more than careful
+wrapping of <code>base::sys.source()</code> and <code>utils::modifyList()</code> with care taken as to
+where evaluation takes place.</p>
+</div>
+<h2 id="sec:example">Example</h2>
+<h3 id="sec:configuration-file">Configuration file</h3>
+<p>Configuration files look similar to the following example file that we bundle in
+the package:</p>
+<pre><code class="language-r">file &lt;- system.file(&quot;config.R&quot;, package = &quot;ronfig&quot;)
+cat(readChar(file, file.info(file)$size))
+</code></pre>
+<pre><code># This is our default configuration which must be a named list
+# All other changes are layered on top of this.
+default &lt;- list(
+    date = as.Date(&quot;2025-09-02&quot;),
+    N = 1000,
+    alpha = 0.3,
+    gamma = 0.2,
+    beta = 0.7,
+    max_delay = 30,
+    years = 2006:2025
+)
+
+# You may need to debug some results and wish to set one parameter to 0 and only
+# look at a reduced number of years, e.g.
+debug &lt;- list(
+    years = 2024:2025,
+    alpha = 0
+)
+
+# Or you may wish to consider an extended range of years
+forecast &lt;- list(
+    years = 2006:2030
+)
+</code></pre>
+<h3 id="sec:loading">Loading</h3>
+<p>We can easily load any of the example configurations in to a list in our local
+environment:</p>
+<pre><code class="language-r">library(ronfig)
+str(load_config(file))
+</code></pre>
+<pre><code>#&gt; List of 7
+#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;
+#&gt;  $ N        : num 1000
+#&gt;  $ alpha    : num 0.3
+#&gt;  $ gamma    : num 0.2
+#&gt;  $ beta     : num 0.7
+#&gt;  $ max_delay: num 30
+#&gt;  $ years    : int [1:20] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...
+</code></pre>
+<pre><code class="language-r">str(load_config(file, &quot;debug&quot;))
+</code></pre>
+<pre><code>#&gt; List of 7
+#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;
+#&gt;  $ N        : num 1000
+#&gt;  $ alpha    : num 0
+#&gt;  $ gamma    : num 0.2
+#&gt;  $ beta     : num 0.7
+#&gt;  $ max_delay: num 30
+#&gt;  $ years    : int [1:2] 2024 2025
+</code></pre>
+<pre><code class="language-r">str(load_config(file, &quot;forecast&quot;))
+</code></pre>
+<pre><code>#&gt; List of 7
+#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;
+#&gt;  $ N        : num 1000
+#&gt;  $ alpha    : num 0.3
+#&gt;  $ gamma    : num 0.2
+#&gt;  $ beta     : num 0.7
+#&gt;  $ max_delay: num 30
+#&gt;  $ years    : int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...
+</code></pre>
+<h2 id="sec:related-work">Related work</h2>
+<ul>
+<li><a href="https://cran.r-project.org/package=config">config</a> which uses yaml for
+it’s configuration file.</li>
+</ul>
+</div>
+</body>
+</html>

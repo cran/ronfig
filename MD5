@@ -1,0 +1,14 @@
+ad8a07682b7d3d353068db4ad7f19405 *DESCRIPTION
+05a63fe2bd1b8a7fcf6aeb75fc174333 *NAMESPACE
+6fef6db8c902fbcb8797d9277452c0a1 *NEWS.md
+273363c049805bb1b23eb4c3639278c4 *R/load_config.R
+2d93640468b8a5397aff87f515dad9ca *build/vignette.rds
+fce1c09b1c94ab57b43874e80325be2c *inst/config.R
+9c70de581f60e1ce684e275e1df6333b *inst/doc/ronfig.R
+38754a622eb3ca29f3af452195372a69 *inst/doc/ronfig.Rmd
+0eaf16fdd7a243a327e5ed6320b3e9d7 *inst/doc/ronfig.html
+cf17f091d75f6c4f7f4af6a2d648bfeb *man/load_config.Rd
+7389dbd43f85a2ff566634148c7b2571 *tests/testthat.R
+0e589cb9c64f685ce117eef5303186d2 *tests/testthat/_snaps/load_config.md
+b9c1f1677153efb736586f799fcc2a9e *tests/testthat/test-load_config.R
+38754a622eb3ca29f3af452195372a69 *vignettes/ronfig.Rmd

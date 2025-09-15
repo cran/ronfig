@@ -1,0 +1,78 @@
+---
+title: "Configuration files for R projects"
+output:
+    html:
+        meta:
+            css: ["@default@1.13.67", "@callout@1.13.67", "@article@1.13.67"]
+            js: ["@sidenotes@1.13.67", "@copy-button@1.13.67", "@callout@1.13.67", "@toc-highlight@1.13.67"]
+        options:
+            toc: true
+            js_highlight:
+                package: prism
+                version: 1.29.0
+        
+vignette: >
+  %\VignetteEngine{litedown::vignette}
+  %\VignetteIndexEntry{ronfig}
+---
+
+```{r, include = FALSE}
+litedown::reactor(print = NA)
+```
+
+ronfig aims to enable intuitive configuration of R projects via a single
+function, `load_config()`. It's raison d'être is to handle the situation where
+you have multiple, somewhat overlapping, parameter configurations that you
+want to quickly switch between whilst avoiding, potentially error-inducing, copy
+and paste.
+
+To keep things simple, rather than introducing another language for our
+configuration file, we restrict ourselves to a subset of base R. Currently we
+allow the following set of functions/operators:
+
+- <-, =, +, -, *, :,
+- as.Date (for character inputs),
+- array, matrix,
+- list, data.frame,
+- c,
+- length,
+- seq (for numeric and date inputs),
+- sequence (for numeric inputs),
+- seq_len, seq_along,
+- Sys.Date and Sys.time.
+
+::: {.callout-note data-legend="Implementation"}
+This use of a reduced subset of R is primarily to ensure that loading a
+configuration file has no side-effects on a users environment and performs
+limited computation. Under the hood, `load_config()` is little more than careful
+wrapping of `base::sys.source()` and `utils::modifyList()` with care taken as to
+where evaluation takes place.
+:::
+
+## Example
+
+### Configuration file
+
+Configuration files look similar to the following example file that we bundle in
+the package:
+
+```{r, comment=''}
+file <- system.file("config.R", package = "ronfig")
+cat(readChar(file, file.info(file)$size))
+```
+
+### Loading
+We can easily load any of the example configurations in to a list in our local
+environment:
+
+```{r}
+library(ronfig)
+str(load_config(file))
+str(load_config(file, "debug"))
+str(load_config(file, "forecast"))
+```
+
+## Related work
+
+- [config](https://cran.r-project.org/package=config) which uses yaml for
+  it's configuration file.
