@@ -59,10 +59,12 @@
       * array, matrix
       * list, data.frame
       * c, cc
-      * length
+      * [, [.data.frame, [.Date, [.POSIXct
+      * $, [[, [[.data.frame, [[.Date, [[.POSIXct
+      * $<-, $<-.data.frame
+      * [<-, [<-.data.frame, [<-.Date, [<-.POSIXct
       * seq, seq.default, seq.int, seq.Date
-      * sequence, sequence.default
-      * seq_len, seq_along
+      * sequence, sequence.default, seq_len
       * Sys.Date, Sys.time
 
 ---
@@ -116,4 +118,53 @@
       ! 1:3: unexpected symbol
       1: 11skfdj
             ^
+
+# load_config crate error handling works
+
+    Code
+      load_config(filename, crates = 1)
+    Condition
+      Error in `load_config()`:
+      ! `crates` must be a named list of `carrier::crate()`.
+
+---
+
+    Code
+      load_config(filename, crates = list(1))
+    Condition
+      Error in `load_config()`:
+      ! `crates` must be a uniquely-named list of `carrier::crate()`.
+
+---
+
+    Code
+      load_config(filename, crates = list(a = 1, 2))
+    Condition
+      Error in `load_config()`:
+      ! `crates` must be a uniquely-named list of `carrier::crate()`.
+
+---
+
+    Code
+      load_config(filename, crates = list(a = 1, a = 2))
+    Condition
+      Error in `load_config()`:
+      ! `crates` must be a uniquely-named list of `carrier::crate()`.
+
+---
+
+    Code
+      load_config(filename, crates = list(a = 1, b = 2))
+    Condition
+      Error in `load_config()`:
+      ! `crates` must be a uniquely-named list of `carrier::crate()`.
+      x Entry a has class numeric.
+
+---
+
+    Code
+      load_config(filename, crates = list(list = carrier::crate(function(x) mean(x))))
+    Condition
+      Error in `load_config()`:
+      ! "list" cannot be used as a crated function name.
 

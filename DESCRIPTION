@@ -1,7 +1,7 @@
 Package: ronfig
 Type: Package
 Title: Load Configuration Values
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     person(
         given = "Tim",
@@ -18,14 +18,14 @@ BugReports: https://codeberg.org/TimTaylor/ronfig/issues
 License: GPL-2 | GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.3.3
-Imports: cli, utils
+Imports: carrier, cli, utils
 Suggests: litedown, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: litedown
 NeedsCompilation: no
-Packaged: 2025-09-10 09:44:53 UTC; tim
+Packaged: 2025-09-24 16:02:00 UTC; tim
 Author: Tim Taylor [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0002-8587-7113>)
 Maintainer: Tim Taylor <tim.taylor@hiddenelephants.co.uk>
 Repository: CRAN
-Date/Publication: 2025-09-15 08:30:02 UTC
+Date/Publication: 2025-09-24 16:20:02 UTC

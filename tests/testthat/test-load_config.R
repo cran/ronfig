@@ -9,7 +9,7 @@ test_that("load_config works as expected when as_is = FALSE", {
                 b = 2.0,
                 c = c("one", "two", "three"),
                 d = as.Date("2020-01-01") + 0:9,
-                e = seq_along(1:10),
+                e = seq_len(10),
                 f = list(g = 10, h = seq_len(10))
             )
 
@@ -24,7 +24,7 @@ test_that("load_config works as expected when as_is = FALSE", {
             b = 3.0,
             c = c("one", "two", "three"),
             d = as.Date("2020-01-01") + 0:9,
-            e = seq_along(1:10),
+            e = 1:10,
             f = list(g = 10, h = matrix(1:9, 3), i = c("1", "2", "3"))
         )
         expect_mapequal(conf, expected)
@@ -43,7 +43,7 @@ test_that("load_config works as expected when as_is = TRUE", {
                 b = 2.0,
                 c = c("one", "two", "three"),
                 d = as.Date("2020-01-01") + 0:9,
-                e = seq_along(1:10),
+                e = 1:10,
                 f = list(g = 10, h = seq_len(10))
             )
 
@@ -79,6 +79,42 @@ test_that("load_config handles environments correctly", {
         env <- new.env()
         eval(str2expression(text), env)
         expect_identical(conf, env$default)
+
+    }, finally = unlink(filename))
+})
+
+test_that("load_config works with accessors and setterd", {
+    tryCatch({
+        filename <- tempfile()
+
+        # try and exercise all of the allowed inputs
+        text <- r"(
+            basic <- list(
+                a = 1L,
+                b = 2.0,
+                c = c("one", "two", "three"),
+                d = as.Date("2020-01-01") + 0:9,
+                e = seq_len(10),
+                f = list(g = 10, h = seq_len(10))
+            )
+
+            basic$a <- basic[["b"]] + basic$a # 2.0 + 1L
+
+            new <- list(b=basic$a + basic[["b"]], f = list(h = matrix(1:9, 3), i = cc(1, 2, 3)))
+        )"
+        cat(text, file = filename)
+
+        # when as_is = FALSE (default)
+        conf <- load_config(filename, "new", default = "basic")
+        expected <- list(
+            a = 3,
+            b = 5,
+            c = c("one", "two", "three"),
+            d = as.Date("2020-01-01") + 0:9,
+            e = 1:10,
+            f = list(g = 10, h = matrix(1:9, 3), i = c("1", "2", "3"))
+        )
+        expect_mapequal(conf, expected)
 
     }, finally = unlink(filename))
 })
@@ -156,4 +192,47 @@ test_that("check the error handling when cannot parse file", {
 
     }, finally = unlink(filename))
 })
+
+test_that("load_config works with crated functions", {
+    tryCatch({
+        filename <- tempfile()
+
+        # create a basic config file
+        text <- "default <- list(a = 1, b = bob(1:4))"
+        cat(text, file = filename)
+
+        # first we check that we can parse the file as expected
+        conf <- load_config(filename, crates = list(bob = carrier::crate(\(x) mean(x))))
+        expect_identical(conf, list(a=1, b = mean(1:4)))
+
+    }, finally = unlink(filename))
+})
+
+
+test_that("load_config crate error handling works", {
+    tryCatch({
+        filename <- tempfile()
+
+        # create a basic config file
+        text <- "default <- list(a = 1)"
+        cat(text, file = filename)
+
+        # Now we check the errors
+        expect_snapshot(error = TRUE, load_config(filename, crates = 1))
+        expect_snapshot(error = TRUE, load_config(filename, crates = list(1)))
+        expect_snapshot(error = TRUE, load_config(filename, crates = list(a = 1, 2)))
+        expect_snapshot(error = TRUE, load_config(filename, crates = list(a = 1, a = 2)))
+        expect_snapshot(error = TRUE, load_config(filename, crates = list(a = 1, b = 2)))
+
+        # Check name restrictions
+        text <- "default <- list(a = 1, b = list(1:4))"
+        cat(text, file = filename)
+        expect_snapshot(
+            error = TRUE,
+            load_config(filename, crates = list(list = carrier::crate(\(x) mean(x))))
+        )
+
+    }, finally = unlink(filename))
+})
+
 

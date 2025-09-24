@@ -4,7 +4,7 @@
 \alias{load_config}
 \title{Load configuration}
 \usage{
-load_config(filename, config, ..., as_is = FALSE, default = "default")
+load_config(filename, config, crates, ..., as_is = FALSE, default = "default")
 }
 \arguments{
 \item{filename}{Configuration file to read from.}
@@ -12,6 +12,9 @@ load_config(filename, config, ..., as_is = FALSE, default = "default")
 \item{config}{Name of entry in configuration file to layer on top of 'default'.
 
 Not used if \code{as_is = TRUE}.}
+
+\item{crates}{A list of \link[carrier:crate]{carrier::crate} objects to inject in to the environment where the
+configuration file will be injected.}
 
 \item{...}{Not currently used.}
 
@@ -38,22 +41,24 @@ to the user. If the user specifies an additional list to consider (via the
 }
 \details{
 Configuration files can be specified using a reduced subset of base R.
-Currently this is restricted to the following operators and functions:
+By defauly this is restricted to the following operators and functions:
 \itemize{
 \item <-, =, +, -, *, :,
-\item as.Date (for character inputs),
+\item $, [, [[,
+\item $<-, [<-, [[<-,
+\item c,
+\item as.Date,
 \item array, matrix,
 \item list, data.frame,
-\item c,
-\item length,
-\item seq (for numeric and date inputs),
-\item sequence (for numeric inputs),
-\item seq_len, seq_along,
-\item Sys.Date and Sys.time.
+\item Sys.Date, Sys.time,
+\item seq, sequence and seq_len.
 }
 
 We also enable a convenience function, \code{cc}, which automatically quotes input
 to save typing.
+
+Users can also inject their own functions in to the evaluation environment
+by supplying a list of \link[carrier:crate]{crates} as an additional argument.
 }
 \examples{
 # load the example configuration

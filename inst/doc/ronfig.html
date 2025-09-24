@@ -42,16 +42,17 @@ configuration file, we restrict ourselves to a subset of base R. Currently we
 allow the following set of functions/operators:</p>
 <ul>
 <li>&lt;-, =, +, -, *, :,</li>
-<li>as.Date (for character inputs),</li>
+<li>$, [, [[,</li>
+<li>$&lt;-, [&lt;-, [[&lt;-,</li>
+<li>c,</li>
+<li>as.Date,</li>
 <li>array, matrix,</li>
 <li>list, data.frame,</li>
-<li>c,</li>
-<li>length,</li>
-<li>seq (for numeric and date inputs),</li>
-<li>sequence (for numeric inputs),</li>
-<li>seq_len, seq_along,</li>
-<li>Sys.Date and Sys.time.</li>
+<li>Sys.Date, Sys.time.</li>
+<li>seq, sequence, and seq_len.</li>
 </ul>
+<p>We also define a convenience function, <code>cc</code>, which automatically quotes input
+to save typing.</p>
 <div class="callout-note" data-legend="Implementation">
 <p>This use of a reduced subset of R is primarily to ensure that loading a
 configuration file has no side-effects on a users environment and performs

@@ -11,21 +11,23 @@
 #'
 # -------------------------------------------------------------------------
 #' Configuration files can be specified using a reduced subset of base R.
-#' Currently this is restricted to the following operators and functions:
+#' By defauly this is restricted to the following operators and functions:
 #'
 #' - <-, =, +, -, *, :,
-#' - as.Date (for character inputs),
+#' - $, [, [[,
+#' - $<-, [<-, [[<-,
+#' - c,
+#' - as.Date,
 #' - array, matrix,
 #' - list, data.frame,
-#' - c,
-#' - length,
-#' - seq (for numeric and date inputs),
-#' - sequence (for numeric inputs),
-#' - seq_len, seq_along,
-#' - Sys.Date and Sys.time.
+#' - Sys.Date, Sys.time,
+#' - seq, sequence and seq_len.
 #'
 #' We also enable a convenience function, `cc`, which automatically quotes input
 #' to save typing.
+#'
+#' Users can also inject their own functions in to the evaluation environment
+#' by supplying a list of [crates][carrier::crate()] as an additional argument.
 #'
 # -------------------------------------------------------------------------
 #' @param filename
@@ -37,6 +39,11 @@
 #' Name of entry in configuration file to layer on top of 'default'.
 #'
 #' Not used if `as_is = TRUE`.
+#'
+#' @param crates
+#'
+#' A list of [carrier::crate] objects to inject in to the environment where the
+#' configuration file will be injected.
 #'
 #' @param as_is
 #'
@@ -81,6 +88,7 @@
 load_config <- function(
     filename,
     config,
+    crates,
     ...,
     as_is = FALSE,
     default = "default"
@@ -100,6 +108,30 @@ load_config <- function(
 
         if (!is.character(config) || length(config) != 1L || is.na(config))
             .abort("{.arg config} must be a string.")
+    }
+
+    # check the crates
+    if (!missing(crates)) {
+        if (!is.list(crates))
+            .abort("{.arg crates} must be a named list of {.fun carrier::crate}.")
+
+        if (length(crates)) {
+            crate_names <- names(crates)
+            if (is.null(crate_names) || !all(nzchar(crate_names)) || anyDuplicated(crate_names)) {
+                .abort("{.arg crates} must be a uniquely-named list of {.fun carrier::crate}.")
+            }
+            idx <- vapply(crates, carrier::is_crate, TRUE)
+            if (!all(idx)) {
+                invalid <- match(FALSE, idx)
+                .abort(
+                    c(
+                        "{.arg crates} must be a uniquely-named list of {.fun carrier::crate}.",
+                        x = "Entry {.field {crate_names[invalid]}} has class {.class {class(crates[[invalid]])}}."
+                    )
+
+                )
+            }
+        }
     }
 
     # check the default is valid
@@ -123,15 +155,30 @@ load_config <- function(
         c('array', 'matrix'),
         c('list', 'data.frame'),
         c('c', 'cc'),
-        'length',
+        c('[' ,'[.data.frame', '[.Date', '[.POSIXct'),
+        c('$', '[[', '[[.data.frame', '[[.Date', '[[.POSIXct'),
+        c('$<-', '$<-.data.frame'),
+        c('[<-', '[<-.data.frame', '[<-.Date', '[<-.POSIXct'),
         c('seq', 'seq.default', 'seq.int', 'seq.Date'),
-        c('sequence', 'sequence.default'),
-        c('seq_len', 'seq_along'),
+        c('sequence', 'sequence.default', 'seq_len'),
         c('Sys.Date', 'Sys.time')
     )
     allowed <- unlist(allow_list)
 
     parent <- list2env(mget(allowed, inherits = TRUE), parent = emptyenv())
+
+    # Add in any crates supplied by the user
+    if (!missing(crates)) {
+        idx <- crate_names %in% allowed
+        if (any(idx)) {
+            nm <- crate_names[idx[1L]]
+            .abort("{.val {nm}} cannot be used as a crated function name.")
+        }
+
+        for (i in seq_along(crate_names)) {
+            assign(crate_names[[i]], crates[[i]], envir = parent)
+        }
+    }
 
     # Now create an environment with the given parent
     envir <- new.env(parent = parent)

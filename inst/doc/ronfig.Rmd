@@ -31,15 +31,17 @@ configuration file, we restrict ourselves to a subset of base R. Currently we
 allow the following set of functions/operators:
 
 - <-, =, +, -, *, :,
-- as.Date (for character inputs),
+- $, [, [[,
+- $<-, [<-, [[<-,
+- c,
+- as.Date,
 - array, matrix,
 - list, data.frame,
-- c,
-- length,
-- seq (for numeric and date inputs),
-- sequence (for numeric inputs),
-- seq_len, seq_along,
-- Sys.Date and Sys.time.
+- Sys.Date, Sys.time.
+- seq, sequence, and seq_len.
+
+We also define a convenience function, `cc`, which automatically quotes input
+to save typing.
 
 ::: {.callout-note data-legend="Implementation"}
 This use of a reduced subset of R is primarily to ensure that loading a
