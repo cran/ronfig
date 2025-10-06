@@ -55,17 +55,15 @@
       ! Unable to load configuration file: could not find function "library"
       i Only the following functions are available to use in rconfig files:
       * <-, =, +, -, *, :
-      * as.Date, as.Date.character
+      * as.Date
       * array, matrix
       * list, data.frame
       * c, cc
-      * [, [.data.frame, [.Date, [.POSIXct
-      * $, [[, [[.data.frame, [[.Date, [[.POSIXct
-      * $<-, $<-.data.frame
-      * [<-, [<-.data.frame, [<-.Date, [<-.POSIXct
-      * seq, seq.default, seq.int, seq.Date
-      * sequence, sequence.default, seq_len
+      * [, [[, $
+      * $<-, [<-
       * Sys.Date, Sys.time
+      * seq, sequence, seq_len
+      * file.path
 
 ---
 

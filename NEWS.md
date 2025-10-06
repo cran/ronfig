@@ -1,3 +1,10 @@
+# ronfig 0.0.4
+
+- Added `file.path()` to the functions available within the configuration file.
+
+- Improved documentation about injection functions in to the evaluation
+  environment.
+
 # ronfig 0.0.3
 
 - Added the following to the functions to be usable in the configuration file:

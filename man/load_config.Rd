@@ -13,8 +13,8 @@ load_config(filename, config, crates, ..., as_is = FALSE, default = "default")
 
 Not used if \code{as_is = TRUE}.}
 
-\item{crates}{A list of \link[carrier:crate]{carrier::crate} objects to inject in to the environment where the
-configuration file will be injected.}
+\item{crates}{A list of \link[carrier:crate]{carrier::crate} objects which are used to inject functions in to
+the environment where the configuration file will be evaluated.}
 
 \item{...}{Not currently used.}
 
@@ -52,6 +52,7 @@ By defauly this is restricted to the following operators and functions:
 \item list, data.frame,
 \item Sys.Date, Sys.time,
 \item seq, sequence and seq_len.
+\item file.path
 }
 
 We also enable a convenience function, \code{cc}, which automatically quotes input
@@ -73,5 +74,18 @@ str(load_config(file, "debug"))
 
 # forecast configuration
 str(load_config(file, "forecast"))
+
+# Injecting crated function
+f <- tempfile()
+cat("default <- list(a=mean(1:10))", file = f)
+
+# will fail as mean() not available
+tryCatch(with(load_config(f), a), error = conditionMessage)
+
+# will work if we inject crated mean
+crate <- carrier::crate(function(x) mean(x))
+with(load_config(f, crates = list(mean = crate)), a)
+
+unlink(f)
 
 }

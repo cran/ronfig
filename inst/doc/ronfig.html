@@ -27,6 +27,7 @@
 <ul>
 <li><a href="#sec:configuration-file">Configuration file</a></li>
 <li><a href="#sec:loading">Loading</a></li>
+<li><a href="#sec:using-other-functions">Using other functions</a></li>
 </ul>
 </li>
 <li><a href="#sec:related-work">Related work</a></li>
@@ -50,6 +51,7 @@ allow the following set of functions/operators:</p>
 <li>list, data.frame,</li>
 <li>Sys.Date, Sys.time.</li>
 <li>seq, sequence, and seq_len.</li>
+<li>file.path</li>
 </ul>
 <p>We also define a convenience function, <code>cc</code>, which automatically quotes input
 to save typing.</p>
@@ -127,6 +129,37 @@ str(load_config(file))
 #&gt;  $ beta     : num 0.7
 #&gt;  $ max_delay: num 30
 #&gt;  $ years    : int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...
+</code></pre>
+<h3 id="sec:using-other-functions">Using other functions</h3>
+<p>To make other functions available within the configuration file, users can
+inject <code>carrier::crate()</code> objects in to the evaluation environment. As an
+example, assume we wanted to permit the use of <code>mean()</code> within our configuration
+file. By default this would error:</p>
+<pre><code class="language-r">f &lt;- tempfile()
+cat(&quot;default &lt;- list(a=mean(1:10))&quot;, file = f)
+with(load_config(f), a)
+</code></pre>
+<pre><code class="language-plain error">#&gt; Error in `load_config()`:
+#&gt; ! Unable to load configuration file: could not find function &quot;mean&quot;
+#&gt; ℹ Only the following functions are available to use in rconfig files:
+#&gt; • &lt;-, =, +, -, *, :
+#&gt; • as.Date
+#&gt; • array, matrix
+#&gt; • list, data.frame
+#&gt; • c, cc
+#&gt; • [, [[, $
+#&gt; • $&lt;-, [&lt;-
+#&gt; • Sys.Date, Sys.time
+#&gt; • seq, sequence, seq_len
+#&gt; • file.path
+</code></pre>
+<p>If we now inject <code>mean()</code> as a crated function, things work as desired:</p>
+<pre><code class="language-r">crate &lt;- carrier::crate(function(x) mean(x))
+with(load_config(f, crates = list(mean = crate)), a)
+</code></pre>
+<pre><code>#&gt; [1] 5.5
+</code></pre>
+<pre><code class="language-r">unlink(f)
 </code></pre>
 <h2 id="sec:related-work">Related work</h2>
 <ul>

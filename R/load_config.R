@@ -22,6 +22,7 @@
 #' - list, data.frame,
 #' - Sys.Date, Sys.time,
 #' - seq, sequence and seq_len.
+#' - file.path
 #'
 #' We also enable a convenience function, `cc`, which automatically quotes input
 #' to save typing.
@@ -42,8 +43,8 @@
 #'
 #' @param crates
 #'
-#' A list of [carrier::crate] objects to inject in to the environment where the
-#' configuration file will be injected.
+#' A list of [carrier::crate] objects which are used to inject functions in to
+#' the environment where the configuration file will be evaluated.
 #'
 #' @param as_is
 #'
@@ -81,6 +82,19 @@
 #'
 #' # forecast configuration
 #' str(load_config(file, "forecast"))
+#'
+#' # Injecting crated function
+#' f <- tempfile()
+#' cat("default <- list(a=mean(1:10))", file = f)
+#'
+#' # will fail as mean() not available
+#' tryCatch(with(load_config(f), a), error = conditionMessage)
+#'
+#' # will work if we inject crated mean
+#' crate <- carrier::crate(function(x) mean(x))
+#' with(load_config(f, crates = list(mean = crate)), a)
+#'
+#' unlink(f)
 #'
 # -------------------------------------------------------------------------
 #' @importFrom cli cli_abort
@@ -151,17 +165,15 @@ load_config <- function(
     # to use as the parent environment to will eventually source things
     allow_list <- list(
         c('<-', '=', '+', '-', '*', ':'),
-        c('as.Date', 'as.Date.character'),
+        c('as.Date'),
         c('array', 'matrix'),
         c('list', 'data.frame'),
         c('c', 'cc'),
-        c('[' ,'[.data.frame', '[.Date', '[.POSIXct'),
-        c('$', '[[', '[[.data.frame', '[[.Date', '[[.POSIXct'),
-        c('$<-', '$<-.data.frame'),
-        c('[<-', '[<-.data.frame', '[<-.Date', '[<-.POSIXct'),
-        c('seq', 'seq.default', 'seq.int', 'seq.Date'),
-        c('sequence', 'sequence.default', 'seq_len'),
-        c('Sys.Date', 'Sys.time')
+        c('[', '[[', '$'),
+        c('$<-', '[<-'),
+        c('Sys.Date', 'Sys.time'),
+        c('seq','sequence','seq_len'),
+        'file.path'
     )
     allowed <- unlist(allow_list)
 
