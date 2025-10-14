@@ -1,171 +1,328 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
 <meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="generator" content="litedown 0.7">
+
+
 <title>Configuration files for R projects</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/css/default.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/css/callout.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/css/article.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.14/css/prism-xcode.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/sidenotes.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/copy-button.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/callout.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.13.67/js/toc-highlight.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+width: 0.8em;
+margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+</style>
 </head>
+
 <body>
-<div class="frontmatter">
-<div class="title"><h1>Configuration files for R projects</h1></div>
-</div>
-<div class="body">
-<div id="TOC">
-<ul>
-<li><a href="#sec:example">Example</a>
-<ul>
-<li><a href="#sec:configuration-file">Configuration file</a></li>
-<li><a href="#sec:loading">Loading</a></li>
-<li><a href="#sec:using-other-functions">Using other functions</a></li>
-</ul>
-</li>
-<li><a href="#sec:related-work">Related work</a></li>
-</ul>
-</div>
-<p>ronfig aims to enable intuitive configuration of R projects via a single
-function, <code>load_config()</code>. It’s raison d’être is to handle the situation where
-you have multiple, somewhat overlapping, parameter configurations that you
-want to quickly switch between whilst avoiding, potentially error-inducing, copy
-and paste.</p>
-<p>To keep things simple, rather than introducing another language for our
-configuration file, we restrict ourselves to a subset of base R. Currently we
-allow the following set of functions/operators:</p>
-<ul>
-<li>&lt;-, =, +, -, *, :,</li>
-<li>$, [, [[,</li>
-<li>$&lt;-, [&lt;-, [[&lt;-,</li>
-<li>c,</li>
-<li>as.Date,</li>
-<li>array, matrix,</li>
-<li>list, data.frame,</li>
-<li>Sys.Date, Sys.time.</li>
-<li>seq, sequence, and seq_len.</li>
-<li>file.path</li>
-</ul>
-<p>We also define a convenience function, <code>cc</code>, which automatically quotes input
-to save typing.</p>
-<div class="callout-note" data-legend="Implementation">
-<p>This use of a reduced subset of R is primarily to ensure that loading a
-configuration file has no side-effects on a users environment and performs
-limited computation. Under the hood, <code>load_config()</code> is little more than careful
-wrapping of <code>base::sys.source()</code> and <code>utils::modifyList()</code> with care taken as to
-where evaluation takes place.</p>
-</div>
-<h2 id="sec:example">Example</h2>
-<h3 id="sec:configuration-file">Configuration file</h3>
-<p>Configuration files look similar to the following example file that we bundle in
-the package:</p>
-<pre><code class="language-r">file &lt;- system.file(&quot;config.R&quot;, package = &quot;ronfig&quot;)
-cat(readChar(file, file.info(file)$size))
-</code></pre>
-<pre><code># This is our default configuration which must be a named list
-# All other changes are layered on top of this.
-default &lt;- list(
-    date = as.Date(&quot;2025-09-02&quot;),
-    N = 1000,
-    alpha = 0.3,
-    gamma = 0.2,
-    beta = 0.7,
-    max_delay = 30,
-    years = 2006:2025
-)
 
-# You may need to debug some results and wish to set one parameter to 0 and only
-# look at a reduced number of years, e.g.
-debug &lt;- list(
-    years = 2024:2025,
-    alpha = 0
-)
 
-# Or you may wish to consider an extended range of years
-forecast &lt;- list(
-    years = 2006:2030
-)
-</code></pre>
-<h3 id="sec:loading">Loading</h3>
-<p>We can easily load any of the example configurations in to a list in our local
-environment:</p>
-<pre><code class="language-r">library(ronfig)
-str(load_config(file))
-</code></pre>
-<pre><code>#&gt; List of 7
-#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;
-#&gt;  $ N        : num 1000
-#&gt;  $ alpha    : num 0.3
-#&gt;  $ gamma    : num 0.2
-#&gt;  $ beta     : num 0.7
-#&gt;  $ max_delay: num 30
-#&gt;  $ years    : int [1:20] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...
-</code></pre>
-<pre><code class="language-r">str(load_config(file, &quot;debug&quot;))
-</code></pre>
-<pre><code>#&gt; List of 7
-#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;
-#&gt;  $ N        : num 1000
-#&gt;  $ alpha    : num 0
-#&gt;  $ gamma    : num 0.2
-#&gt;  $ beta     : num 0.7
-#&gt;  $ max_delay: num 30
-#&gt;  $ years    : int [1:2] 2024 2025
-</code></pre>
-<pre><code class="language-r">str(load_config(file, &quot;forecast&quot;))
-</code></pre>
-<pre><code>#&gt; List of 7
-#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;
-#&gt;  $ N        : num 1000
-#&gt;  $ alpha    : num 0.3
-#&gt;  $ gamma    : num 0.2
-#&gt;  $ beta     : num 0.7
-#&gt;  $ max_delay: num 30
-#&gt;  $ years    : int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...
-</code></pre>
-<h3 id="sec:using-other-functions">Using other functions</h3>
-<p>To make other functions available within the configuration file, users can
-inject <code>carrier::crate()</code> objects in to the evaluation environment. As an
-example, assume we wanted to permit the use of <code>mean()</code> within our configuration
-file. By default this would error:</p>
-<pre><code class="language-r">f &lt;- tempfile()
-cat(&quot;default &lt;- list(a=mean(1:10))&quot;, file = f)
-with(load_config(f), a)
-</code></pre>
-<pre><code class="language-plain error">#&gt; Error in `load_config()`:
-#&gt; ! Unable to load configuration file: could not find function &quot;mean&quot;
-#&gt; ℹ Only the following functions are available to use in rconfig files:
-#&gt; • &lt;-, =, +, -, *, :
-#&gt; • as.Date
-#&gt; • array, matrix
-#&gt; • list, data.frame
-#&gt; • c, cc
-#&gt; • [, [[, $
-#&gt; • $&lt;-, [&lt;-
-#&gt; • Sys.Date, Sys.time
-#&gt; • seq, sequence, seq_len
-#&gt; • file.path
-</code></pre>
+<header id="title-block-header">
+<h1 class="title">Configuration files for R projects</h1>
+
+</header>
+
+
+<p>ronfig aims to enable intuitive configuration of R projects via a single function, <code>load_config()</code>. It’s raison d’être is to handle the situation where you have multiple, somewhat overlapping, parameter configurations that you want to quickly switch between whilst avoiding, potentially error-inducing, copy and paste.</p>
+<p>To keep things simple, rather than introducing another language for our configuration file, we restrict ourselves to a subset of base R. Currently we allow the following set of functions/operators:</p>
+<ul>
+<li><code>&lt;-</code>, <code>=</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>:</code>,</li>
+<li><code>$</code>, <code>[</code>, <code>[[</code>,</li>
+<li><code>$&lt;-</code>, <code>[&lt;-</code>, <code>[[&lt;-</code>,</li>
+<li><code>c()</code>,</li>
+<li><code>as.Date()</code>,</li>
+<li><code>array(),</code>matrix()`,</li>
+<li><code>list()</code>, <code>data.frame()</code>,</li>
+<li><code>Sys.Date()</code>, <code>Sys.time()</code>.</li>
+<li><code>seq()</code>, <code>sequence()</code>, and <code>seq_len()</code>.</li>
+<li><code>file.path()</code></li>
+</ul>
+<p>We also define a convenience function, <code>cc()</code>, which automatically quotes input to save typing.</p>
+<p>This use of a reduced subset of R is primarily to ensure that loading a configuration file has no side-effects on a users environment and performs limited computation. Under the hood, <code>load_config()</code> is little more than careful wrapping of <code>base::sys.source()</code> and <code>utils::modifyList()</code> with care taken as to where evaluation takes place.</p>
+<h2 id="example">Example</h2>
+<h3 id="configuration-file">Configuration file</h3>
+<p>Configuration files look similar to the following example file that we bundle in the package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>file <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;config.R&quot;</span>, <span class="at">package =</span> <span class="st">&quot;ronfig&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">readChar</span>(file, <span class="fu">file.info</span>(file)<span class="sc">$</span>size))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This is our default configuration which must be a named list</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># All other changes are layered on top of this.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>default <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2025-09-02&quot;</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="dv">1000</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.3</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">gamma =</span> <span class="fl">0.2</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">beta =</span> <span class="fl">0.7</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_delay =</span> <span class="dv">30</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">years =</span> <span class="dv">2006</span><span class="sc">:</span><span class="dv">2025</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># You may need to debug some results and wish to set one parameter to 0 and only</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># look at a reduced number of years, e.g.</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>debug <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">years =</span> <span class="dv">2024</span><span class="sc">:</span><span class="dv">2025</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="dv">0</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Or you may wish to consider an extended range of years</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>forecast <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">years =</span> <span class="dv">2006</span><span class="sc">:</span><span class="dv">2030</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<h3 id="loading">Loading</h3>
+<p>We can easily load any of the example configurations in to a list in our local environment:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ronfig)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">load_config</span>(file))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 7</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ N        : num 1000</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ alpha    : num 0.3</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ gamma    : num 0.2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ beta     : num 0.7</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ max_delay: num 30</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ years    : int [1:20] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">load_config</span>(file, <span class="st">&quot;debug&quot;</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 7</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ N        : num 1000</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ alpha    : num 0</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ gamma    : num 0.2</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ beta     : num 0.7</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ max_delay: num 30</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ years    : int [1:2] 2024 2025</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">load_config</span>(file, <span class="st">&quot;forecast&quot;</span>))</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 7</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ date     : Date[1:1], format: &quot;2025-09-02&quot;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ N        : num 1000</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ alpha    : num 0.3</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ gamma    : num 0.2</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ beta     : num 0.7</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ max_delay: num 30</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ years    : int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...</span></span></code></pre></div>
+</div>
+<h3 id="using-other-functions">Using other functions</h3>
+<p>To make other functions available within the configuration file, users can inject <code>carrier::crate()</code> objects in to the evaluation environment. As an example, assume we wanted to permit the use of <code>mean()</code> within our configuration file. By default this would error:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;default &lt;- list(a=mean(1:10))&quot;</span>, <span class="at">file =</span> f)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">load_config</span>(f), a)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `load_config()`:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! Unable to load configuration file: could not find function &quot;mean&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Only the following functions are available to use in rconfig files:</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • &lt;-, =, +, -, *, :</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • as.Date</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • array, matrix</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • list, data.frame</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • c, cc</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • [, [[, $</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • $&lt;-, [&lt;-</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • Sys.Date, Sys.time</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • seq, sequence, seq_len</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • file.path</span></span></code></pre></div>
+</div>
 <p>If we now inject <code>mean()</code> as a crated function, things work as desired:</p>
-<pre><code class="language-r">crate &lt;- carrier::crate(function(x) mean(x))
-with(load_config(f, crates = list(mean = crate)), a)
-</code></pre>
-<pre><code>#&gt; [1] 5.5
-</code></pre>
-<pre><code class="language-r">unlink(f)
-</code></pre>
-<h2 id="sec:related-work">Related work</h2>
-<ul>
-<li><a href="https://cran.r-project.org/package=config">config</a> which uses yaml for
-it’s configuration file.</li>
-</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>crate <span class="ot">&lt;-</span> carrier<span class="sc">::</span><span class="fu">crate</span>(<span class="cf">function</span>(x) <span class="fu">mean</span>(x))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">load_config</span>(f, <span class="at">crates =</span> <span class="fu">list</span>(<span class="at">mean =</span> crate)), a)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5.5</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(f)</span></code></pre></div>
 </div>
-</body>
-</html>
+<h2 id="related-work">Related work</h2>
+<ul>
+<li><a href="https://cran.r-project.org/package=config">config</a> which uses yaml for it’s configuration file.</li>
+</ul>
+
+
+
+
+
+</body></html>

@@ -1,3 +1,8 @@
+# ronfig 0.0.5
+
+- Vignette tweaks and change of underlying vignette engine to
+  [quarto](https://cran.r-project.org/package=quarto).
+
 # ronfig 0.0.4
 
 - Added `file.path()` to the functions available within the configuration file.
@@ -8,10 +13,10 @@
 # ronfig 0.0.3
 
 - Added the following to the functions to be usable in the configuration file:
-    - getters: $, [ and [[
-    - setters: $<-, [<- and [[<-
+    - getters: `$`, `[` and `[[`
+    - setters: `$<-`, `[<-` and `[[<-`
     
-- Removed length() and seq_along() from functions available in the configuration
+- Removed `length()` and `seq_along()` from functions available in the configuration
   file.
     
 - Added the ability to injection functions in to the environment where the

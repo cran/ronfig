@@ -1,24 +1,16 @@
 ---
 title: "Configuration files for R projects"
-output:
-    html:
-        meta:
-            css: ["@default@1.13.67", "@callout@1.13.67", "@article@1.13.67"]
-            js: ["@sidenotes@1.13.67", "@copy-button@1.13.67", "@callout@1.13.67", "@toc-highlight@1.13.67"]
-        options:
-            toc: true
-            js_highlight:
-                package: prism
-                version: 1.29.0
-        
 vignette: >
-  %\VignetteEngine{litedown::vignette}
-  %\VignetteIndexEntry{ronfig}
+  %\VignetteIndexEntry{Configuration files for R projects}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+    error: true
+    message: true
 ---
-
-```{r, include = FALSE}
-litedown::reactor(error = TRUE, message = TRUE, print = NA)
-```
 
 ronfig aims to enable intuitive configuration of R projects via a single
 function, `load_config()`. It's raison d'être is to handle the situation where
@@ -30,27 +22,25 @@ To keep things simple, rather than introducing another language for our
 configuration file, we restrict ourselves to a subset of base R. Currently we
 allow the following set of functions/operators:
 
-- <-, =, +, -, *, :,
-- $, [, [[,
-- $<-, [<-, [[<-,
-- c,
-- as.Date,
-- array, matrix,
-- list, data.frame,
-- Sys.Date, Sys.time.
-- seq, sequence, and seq_len.
-- file.path
+- `<-`, `=`, `+`, `-`, `*`, `:`,
+- `$`, `[`, `[[`,
+- `$<-`, `[<-`, `[[<-`,
+- `c()`,
+- `as.Date()`,
+- `array(), `matrix()`,
+- `list()`, `data.frame()`,
+- `Sys.Date()`, `Sys.time()`.
+- `seq()`, `sequence()`, and `seq_len()`.
+- `file.path()`
 
-We also define a convenience function, `cc`, which automatically quotes input
+We also define a convenience function, `cc()`, which automatically quotes input
 to save typing.
 
-::: {.callout-note data-legend="Implementation"}
 This use of a reduced subset of R is primarily to ensure that loading a
 configuration file has no side-effects on a users environment and performs
 limited computation. Under the hood, `load_config()` is little more than careful
 wrapping of `base::sys.source()` and `utils::modifyList()` with care taken as to
 where evaluation takes place.
-:::
 
 ## Example
 
@@ -100,3 +90,4 @@ unlink(f)
 
 - [config](https://cran.r-project.org/package=config) which uses yaml for
   it's configuration file.
+
