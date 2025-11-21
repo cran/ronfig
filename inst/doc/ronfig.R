@@ -11,6 +11,11 @@ str(load_config(file, "forecast"))
 
 
 ## -----------------------------------------------------------------------------
+str(load_config(file, as_is = TRUE))
+str(load_config(file, "forecast", as_is = TRUE))
+
+
+## -----------------------------------------------------------------------------
 f <- tempfile()
 cat("default <- list(a=mean(1:10))", file = f)
 with(load_config(f), a)

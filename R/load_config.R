@@ -1,6 +1,8 @@
 #' Load configuration
 #'
 # -------------------------------------------------------------------------
+#' @description
+#'
 #' Load a user defined configuration from file. By default
 #' (i.e. when `as_is = FALSE`), `load_config()` requires inputs to be given as
 #' uniquely-named lists. It first parses the configuration file looking for a
@@ -9,20 +11,26 @@
 #' `config` argument) then this list is layered on top
 #' (using `utils::modifyList()`).
 #'
-# -------------------------------------------------------------------------
-#' Configuration files can be specified using a reduced subset of base R.
-#' By defauly this is restricted to the following operators and functions:
+#' `list_config()` returns the names of (possible) configurations within the
+#' given file. It corresponds to `names(load_config(filename, as_is = TRUE))`.
 #'
-#' - <-, =, +, -, *, :,
-#' - $, [, [[,
-#' - $<-, [<-, [[<-,
-#' - c,
-#' - as.Date,
-#' - array, matrix,
-#' - list, data.frame,
-#' - Sys.Date, Sys.time,
-#' - seq, sequence and seq_len.
-#' - file.path
+# -------------------------------------------------------------------------
+#' @details
+#'
+#' Configuration files can be specified using a reduced subset of base R.
+#' By default this is restricted to the following operators and functions:
+#'
+#' - `<-`, `=`, `+`, `-`, `*`, `:`
+#' - `$`, `[`, `[[`
+#' - `$<-`, `[<-`, `[[<-`
+#' - `c()`
+#' - `as.Date()`
+#' - `array()`, `matrix()`
+#' - `list()`, `data.frame()`
+#' - `Sys.Date()`, `Sys.time()`
+#' - `seq()`, `sequence()`, and `seq_len()`
+#' - `file.path()`
+#' - `modifyList()`
 #'
 #' We also enable a convenience function, `cc`, which automatically quotes input
 #' to save typing.
@@ -37,9 +45,11 @@
 #'
 #' @param config
 #'
-#' Name of entry in configuration file to layer on top of 'default'.
+#' If `as_is = FALSE`, name of entry in configuration file to layer on top of
+#' 'default'.
 #'
-#' Not used if `as_is = TRUE`.
+#' If `as_is = TRUE` then, if specified, this entry will be selected from the
+#' configuration and returned.
 #'
 #' @param crates
 #'
@@ -55,18 +65,25 @@
 #'
 #' @param default
 #'
-#' The default configuration to use.
+#' The default configuration to use. Not used if `as_is = FALSE`.
 #'
 #' @param ...
 #'
 #' Not currently used.
 #'
 # -------------------------------------------------------------------------
-#' @return
+#' @returns
 #'
-#' If `as_is = FALSE` (default) a list contain entries corresponding to the
-#' chosen `config`. If `as_is = TRUE`, a list of all entries in the evaluated
-#' configuration file.
+#' If `as_is = FALSE` (default), `load_config()` returns a list contain entries
+#' corresponding to the chosen `config`.
+#'
+#' If `as_is = TRUE` and no `config` value specified, a list of all entries in
+#' the evaluated configuration file. If a `config` value is specified, this
+#' entry is pulled from the list and returned.
+#'
+#' `list_config()` returns a character vector of (possible) configurations
+#' within the given file. It corresponds to
+#' `names(load_config(filename, as_is = TRUE))`.
 #'
 # -------------------------------------------------------------------------
 #' @examples
@@ -116,12 +133,9 @@ load_config <- function(
         .abort("{.arg as_is} must be a boolean.")
 
     # check the config is valid
-    if (!missing(config)) {
-        if (as_is)
-            .abort("{.arg config} can only be given when {.arg as_is} is FALSE.")
-
+    if (!(missing(config) || is.null(config))) {
         if (!is.character(config) || length(config) != 1L || is.na(config))
-            .abort("{.arg config} must be a string.")
+            .abort("If specified, {.arg config} must be a string or NULL.")
     }
 
     # check the crates
@@ -161,8 +175,13 @@ load_config <- function(
     # helper function for quoting input (saves writing speech marks)
     cc <- function(...) as.character(substitute(list(...))[-1L])
 
-    # Insert only a few essential functions plus cc in to an empty environment
-    # to use as the parent environment to will eventually source things
+    # Ensure modifyList is also available
+    modifyList <- utils::modifyList
+
+    # Insert only a few essential functions plus cc and modifyList in to an
+    # empty environment to use as the parent environment to will eventually
+    # source things
+
     allow_list <- list(
         c('<-', '=', '+', '-', '*', ':'),
         c('as.Date'),
@@ -173,7 +192,8 @@ load_config <- function(
         c('$<-', '[<-'),
         c('Sys.Date', 'Sys.time'),
         c('seq','sequence','seq_len'),
-        'file.path'
+        'file.path',
+        'modifyList'
     )
     allowed <- unlist(allow_list)
 
@@ -226,8 +246,15 @@ load_config <- function(
     )
 
     if (as_is) {
-        # return the environment as a list
-        return(as.list(envir, all.names = TRUE, sorted = FALSE))
+        if (missing(config) || is.null(config))
+            # the environment as a list
+            return(as.list(envir, all.names = TRUE, sorted = FALSE))
+
+        # Check that the 'config' configuration exists in the environment
+        if (is.null(conf <- get0(config, envir, inherits = FALSE)))
+            .abort("Cannot find {.arg config} entry ({.val {config}}) in the rconfig file.")
+
+        return(conf)
     }
 
     # Check that the 'default' configuration exists in the environment
@@ -260,6 +287,20 @@ load_config <- function(
     utils::modifyList(out, conf, keep.null = TRUE)
 }
 
+#' @export
+#' @rdname load_config
+list_config <- function(filename) {
+    call <- sys.call()[1L] # Capture the caller environment for error messaging
+    x <- withCallingHandlers(
+        load_config(filename = filename, as_is = TRUE),
+        ronfig_error = function(cnd) {
+            .abort("Unable to determine available configurations", parent = cnd, call = call)
+        }
+    )
+    x <- x[vapply(x, function(x) is.list(x) && .all_named(x), TRUE)]
+    names(x)
+}
+
 .all_named <- function(x) {
     names <- names(x)
     if (is.null(names) || !all(nzchar(names)) || anyDuplicated(names))
@@ -272,6 +313,8 @@ load_config <- function(
     }
     TRUE
 }
+
+
 
 .abort <- function(message, ..., call = .envir, .envir = parent.frame(), .frame = .envir) {
     cli_abort(

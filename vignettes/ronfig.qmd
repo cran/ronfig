@@ -22,16 +22,17 @@ To keep things simple, rather than introducing another language for our
 configuration file, we restrict ourselves to a subset of base R. Currently we
 allow the following set of functions/operators:
 
-- `<-`, `=`, `+`, `-`, `*`, `:`,
-- `$`, `[`, `[[`,
-- `$<-`, `[<-`, `[[<-`,
-- `c()`,
-- `as.Date()`,
-- `array(), `matrix()`,
-- `list()`, `data.frame()`,
-- `Sys.Date()`, `Sys.time()`.
-- `seq()`, `sequence()`, and `seq_len()`.
+- `<-`, `=`, `+`, `-`, `*`, `:`
+- `$`, `[`, `[[`
+- `$<-`, `[<-`, `[[<-`
+- `c()`
+- `as.Date()`
+- `array()`, `matrix()`
+- `list()`, `data.frame()`
+- `Sys.Date()`, `Sys.time()`
+- `seq()`, `sequence()`, and `seq_len()`
 - `file.path()`
+- `modifyList()`
 
 We also define a convenience function, `cc()`, which automatically quotes input
 to save typing.
@@ -65,6 +66,18 @@ str(load_config(file))
 str(load_config(file, "debug"))
 str(load_config(file, "forecast"))
 ```
+
+# Loading things as they are
+
+If we just wish to load the configuration file as is, we can pass the argument
+`as_is = TRUE`. This will load configuration file in to a list. If we specify
+a specific configuration, that value will be pulled out and returned directly:
+
+```{r}
+str(load_config(file, as_is = TRUE))
+str(load_config(file, "forecast", as_is = TRUE))
+```
+
 
 ### Using other functions
 

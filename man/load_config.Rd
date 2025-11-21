@@ -2,16 +2,21 @@
 % Please edit documentation in R/load_config.R
 \name{load_config}
 \alias{load_config}
+\alias{list_config}
 \title{Load configuration}
 \usage{
 load_config(filename, config, crates, ..., as_is = FALSE, default = "default")
+
+list_config(filename)
 }
 \arguments{
 \item{filename}{Configuration file to read from.}
 
-\item{config}{Name of entry in configuration file to layer on top of 'default'.
+\item{config}{If \code{as_is = FALSE}, name of entry in configuration file to layer on top of
+'default'.
 
-Not used if \code{as_is = TRUE}.}
+If \code{as_is = TRUE} then, if specified, this entry will be selected from the
+configuration and returned.}
 
 \item{crates}{A list of \link[carrier:crate]{carrier::crate} objects which are used to inject functions in to
 the environment where the configuration file will be evaluated.}
@@ -23,12 +28,19 @@ the \code{default} config?
 
 Defaults to \code{FALSE}.}
 
-\item{default}{The default configuration to use.}
+\item{default}{The default configuration to use. Not used if \code{as_is = FALSE}.}
 }
 \value{
-If \code{as_is = FALSE} (default) a list contain entries corresponding to the
-chosen \code{config}. If \code{as_is = TRUE}, a list of all entries in the evaluated
-configuration file.
+If \code{as_is = FALSE} (default), \code{load_config()} returns a list contain entries
+corresponding to the chosen \code{config}.
+
+If \code{as_is = TRUE} and no \code{config} value specified, a list of all entries in
+the evaluated configuration file. If a \code{config} value is specified, this
+entry is pulled from the list and returned.
+
+\code{list_config()} returns a character vector of (possible) configurations
+within the given file. It corresponds to
+\code{names(load_config(filename, as_is = TRUE))}.
 }
 \description{
 Load a user defined configuration from file. By default
@@ -38,21 +50,25 @@ uniquely-named lists. It first parses the configuration file looking for a
 to the user. If the user specifies an additional list to consider (via the
 \code{config} argument) then this list is layered on top
 (using \code{utils::modifyList()}).
+
+\code{list_config()} returns the names of (possible) configurations within the
+given file. It corresponds to \code{names(load_config(filename, as_is = TRUE))}.
 }
 \details{
 Configuration files can be specified using a reduced subset of base R.
-By defauly this is restricted to the following operators and functions:
+By default this is restricted to the following operators and functions:
 \itemize{
-\item <-, =, +, -, *, :,
-\item $, [, [[,
-\item $<-, [<-, [[<-,
-\item c,
-\item as.Date,
-\item array, matrix,
-\item list, data.frame,
-\item Sys.Date, Sys.time,
-\item seq, sequence and seq_len.
-\item file.path
+\item \verb{<-}, \code{=}, \code{+}, \code{-}, \code{*}, \code{:}
+\item \code{$}, \code{[}, \code{[[}
+\item \verb{$<-}, \verb{[<-}, \verb{[[<-}
+\item \code{c()}
+\item \code{as.Date()}
+\item \code{array()}, \code{matrix()}
+\item \code{list()}, \code{data.frame()}
+\item \code{Sys.Date()}, \code{Sys.time()}
+\item \code{seq()}, \code{sequence()}, and \code{seq_len()}
+\item \code{file.path()}
+\item \code{modifyList()}
 }
 
 We also enable a convenience function, \code{cc}, which automatically quotes input

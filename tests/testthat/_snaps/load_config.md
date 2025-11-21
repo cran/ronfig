@@ -1,3 +1,11 @@
+# load_config works as expected when as_is = TRUE
+
+    Code
+      load_config(filename, as_is = TRUE, config = "bob")
+    Condition
+      Error in `load_config()`:
+      ! Cannot find `config` entry ("bob") in the rconfig file.
+
 # load_config basic error handling works
 
     Code
@@ -17,18 +25,10 @@
 ---
 
     Code
-      load_config(filename, config = "new", as_is = TRUE)
-    Condition
-      Error in `load_config()`:
-      ! `config` can only be given when `as_is` is FALSE.
-
----
-
-    Code
       load_config(filename, letters)
     Condition
       Error in `load_config()`:
-      ! `config` must be a string.
+      ! If specified, `config` must be a string or NULL.
 
 ---
 
@@ -64,6 +64,7 @@
       * Sys.Date, Sys.time
       * seq, sequence, seq_len
       * file.path
+      * modifyList
 
 ---
 

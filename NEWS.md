@@ -1,3 +1,13 @@
+# ronfig 0.0.6
+
+- Added `modifyList()` to the functions available within the configuration file.
+
+- Added the ability to pull specific configuration values out of the returned
+  object when `as_is = TRUE`.
+
+- Added `list_config()`. This returns the names of all possible configurations
+  within a file.
+
 # ronfig 0.0.5
 
 - Vignette tweaks and change of underlying vignette engine to

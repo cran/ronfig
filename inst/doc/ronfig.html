@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -214,16 +214,17 @@ text-decoration: underline; }
 <p>ronfig aims to enable intuitive configuration of R projects via a single function, <code>load_config()</code>. It’s raison d’être is to handle the situation where you have multiple, somewhat overlapping, parameter configurations that you want to quickly switch between whilst avoiding, potentially error-inducing, copy and paste.</p>
 <p>To keep things simple, rather than introducing another language for our configuration file, we restrict ourselves to a subset of base R. Currently we allow the following set of functions/operators:</p>
 <ul>
-<li><code>&lt;-</code>, <code>=</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>:</code>,</li>
-<li><code>$</code>, <code>[</code>, <code>[[</code>,</li>
-<li><code>$&lt;-</code>, <code>[&lt;-</code>, <code>[[&lt;-</code>,</li>
-<li><code>c()</code>,</li>
-<li><code>as.Date()</code>,</li>
-<li><code>array(),</code>matrix()`,</li>
-<li><code>list()</code>, <code>data.frame()</code>,</li>
-<li><code>Sys.Date()</code>, <code>Sys.time()</code>.</li>
-<li><code>seq()</code>, <code>sequence()</code>, and <code>seq_len()</code>.</li>
+<li><code>&lt;-</code>, <code>=</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>:</code></li>
+<li><code>$</code>, <code>[</code>, <code>[[</code></li>
+<li><code>$&lt;-</code>, <code>[&lt;-</code>, <code>[[&lt;-</code></li>
+<li><code>c()</code></li>
+<li><code>as.Date()</code></li>
+<li><code>array()</code>, <code>matrix()</code></li>
+<li><code>list()</code>, <code>data.frame()</code></li>
+<li><code>Sys.Date()</code>, <code>Sys.time()</code></li>
+<li><code>seq()</code>, <code>sequence()</code>, and <code>seq_len()</code></li>
 <li><code>file.path()</code></li>
+<li><code>modifyList()</code></li>
 </ul>
 <p>We also define a convenience function, <code>cc()</code>, which automatically quotes input to save typing.</p>
 <p>This use of a reduced subset of R is primarily to ensure that loading a configuration file has no side-effects on a users environment and performs limited computation. Under the hood, <code>load_config()</code> is little more than careful wrapping of <code>base::sys.source()</code> and <code>utils::modifyList()</code> with care taken as to where evaluation takes place.</p>
@@ -289,32 +290,55 @@ text-decoration: underline; }
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ max_delay: num 30</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ years    : int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...</span></span></code></pre></div>
 </div>
+<h1 id="loading-things-as-they-are">Loading things as they are</h1>
+<p>If we just wish to load the configuration file as is, we can pass the argument <code>as_is = TRUE</code>. This will load configuration file in to a list. If we specify a specific configuration, that value will be pulled out and returned directly:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">load_config</span>(file, <span class="at">as_is =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 3</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ forecast:List of 1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ years: int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ default :List of 7</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ date     : Date[1:1], format: &quot;2025-09-02&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ N        : num 1000</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ alpha    : num 0.3</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ gamma    : num 0.2</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ beta     : num 0.7</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ max_delay: num 30</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ years    : int [1:20] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ debug   :List of 2</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ years: int [1:2] 2024 2025</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ alpha: num 0</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">load_config</span>(file, <span class="st">&quot;forecast&quot;</span>, <span class="at">as_is =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 1</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ years: int [1:25] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 ...</span></span></code></pre></div>
+</div>
 <h3 id="using-other-functions">Using other functions</h3>
 <p>To make other functions available within the configuration file, users can inject <code>carrier::crate()</code> objects in to the evaluation environment. As an example, assume we wanted to permit the use of <code>mean()</code> within our configuration file. By default this would error:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;default &lt;- list(a=mean(1:10))&quot;</span>, <span class="at">file =</span> f)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">load_config</span>(f), a)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `load_config()`:</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! Unable to load configuration file: could not find function &quot;mean&quot;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Only the following functions are available to use in rconfig files:</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • &lt;-, =, +, -, *, :</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • as.Date</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • array, matrix</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • list, data.frame</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • c, cc</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • [, [[, $</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • $&lt;-, [&lt;-</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • Sys.Date, Sys.time</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • seq, sequence, seq_len</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • file.path</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;default &lt;- list(a=mean(1:10))&quot;</span>, <span class="at">file =</span> f)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">load_config</span>(f), a)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `load_config()`:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! Unable to load configuration file: could not find function &quot;mean&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Only the following functions are available to use in rconfig files:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • &lt;-, =, +, -, *, :</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • as.Date</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • array, matrix</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • list, data.frame</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • c, cc</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • [, [[, $</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • $&lt;-, [&lt;-</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • Sys.Date, Sys.time</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • seq, sequence, seq_len</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • file.path</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; • modifyList</span></span></code></pre></div>
 </div>
 <p>If we now inject <code>mean()</code> as a crated function, things work as desired:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>crate <span class="ot">&lt;-</span> carrier<span class="sc">::</span><span class="fu">crate</span>(<span class="cf">function</span>(x) <span class="fu">mean</span>(x))</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">load_config</span>(f, <span class="at">crates =</span> <span class="fu">list</span>(<span class="at">mean =</span> crate)), a)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5.5</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(f)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>crate <span class="ot">&lt;-</span> carrier<span class="sc">::</span><span class="fu">crate</span>(<span class="cf">function</span>(x) <span class="fu">mean</span>(x))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">load_config</span>(f, <span class="at">crates =</span> <span class="fu">list</span>(<span class="at">mean =</span> crate)), a)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5.5</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(f)</span></code></pre></div>
 </div>
 <h2 id="related-work">Related work</h2>
 <ul>

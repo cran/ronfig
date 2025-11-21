@@ -54,16 +54,24 @@ test_that("load_config works as expected when as_is = TRUE", {
             )
 
             new <- list(b=3.0, f = list(h = matrix(1:9, 3), i = c("1", "2", "3")))
+
+            basic2 <- modifyList(basic, list(f=list(g=9)))
         )"
         cat(text, file = filename)
 
-        # when as_is = TRUE
+        # when as_is = TRUE, but no configuration specified
         conf <- load_config(filename, as_is = TRUE)
         env <- new.env()
         eval(str2expression(text), envir = env)
         expected <- as.list(env)
         expect_mapequal(conf, expected)
 
+        # When as_is = TRUE, with configuration
+        conf <- load_config(filename, as_is = TRUE, config = "new")
+        expect_equal(conf, expected$new)
+
+        # Errors nicely if something not present
+        expect_snapshot(error = TRUE, load_config(filename, as_is = TRUE, config = "bob"))
 
     }, finally = unlink(filename))
 })
@@ -142,7 +150,6 @@ test_that("load_config basic error handling works", {
         # Now we check the errors
         expect_snapshot(error = TRUE, load_config(letters))
         expect_snapshot(error = TRUE, load_config(filename, as_is = letters))
-        expect_snapshot(error = TRUE, load_config(filename, config = "new", as_is = TRUE))
         expect_snapshot(error = TRUE, load_config(filename, letters))
         expect_snapshot(error = TRUE, load_config(filename, default = letters))
         expect_snapshot(error = TRUE, load_config(filename, default = "bob"))

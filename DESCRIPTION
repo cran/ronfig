@@ -1,7 +1,7 @@
 Package: ronfig
 Type: Package
 Title: Load Configuration Values
-Version: 0.0.5
+Version: 0.0.6
 Authors@R: 
     person(
         given = "Tim",
@@ -23,9 +23,9 @@ Suggests: knitr, quarto, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: quarto
 NeedsCompilation: no
-Packaged: 2025-10-14 09:28:22 UTC; tim
+Packaged: 2025-11-21 10:11:09 UTC; tim
 Author: Tim Taylor [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0002-8587-7113>)
 Maintainer: Tim Taylor <tim.taylor@hiddenelephants.co.uk>
 Repository: CRAN
-Date/Publication: 2025-10-14 09:50:02 UTC
+Date/Publication: 2025-11-21 10:30:07 UTC
