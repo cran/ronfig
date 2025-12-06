@@ -1,3 +1,7 @@
+# ronfig 0.0.7
+
+- Fix bug when calling `load_config()` with `config = NULL`.
+
 # ronfig 0.0.6
 
 - Added `modifyList()` to the functions available within the configuration file.

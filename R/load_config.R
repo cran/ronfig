@@ -269,7 +269,7 @@ load_config <- function(
     if (!.all_named(out))
         .abort("{.arg default} entry ({.val {default}}) must be a non-empty and uniquely-named list.")
 
-    if (missing(config))
+    if (missing(config) || is.null(config))
         return(out)
 
     # Check that the 'config' configuration exists in the environment
