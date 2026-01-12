@@ -167,3 +167,23 @@
       Error in `load_config()`:
       ! "list" cannot be used as a crated function name.
 
+# load_config works when strict = TRUE and other package called
+
+    Code
+      load_config(filename, "new", default = "basic")
+    Condition
+      Error in `load_config()`:
+      ! Unable to load configuration file: could not find function "::"
+      i Only the following functions are available to use in rconfig files:
+      * <-, =, +, -, *, :
+      * as.Date
+      * array, matrix
+      * list, data.frame
+      * c, cc
+      * [, [[, $
+      * $<-, [<-
+      * Sys.Date, Sys.time
+      * seq, sequence, seq_len
+      * file.path
+      * modifyList
+

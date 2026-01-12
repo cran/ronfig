@@ -212,7 +212,7 @@ text-decoration: underline; }
 
 
 <p>ronfig aims to enable intuitive configuration of R projects via a single function, <code>load_config()</code>. It’s raison d’être is to handle the situation where you have multiple, somewhat overlapping, parameter configurations that you want to quickly switch between whilst avoiding, potentially error-inducing, copy and paste.</p>
-<p>To keep things simple, rather than introducing another language for our configuration file, we restrict ourselves to a subset of base R. Currently we allow the following set of functions/operators:</p>
+<p>To keep things simple, rather than introducing another language for our configuration file, we restrict ourselves to a subset of base R. By default we allow the following set of functions/operators:</p>
 <ul>
 <li><code>&lt;-</code>, <code>=</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>:</code></li>
 <li><code>$</code>, <code>[</code>, <code>[[</code></li>
@@ -228,6 +228,7 @@ text-decoration: underline; }
 </ul>
 <p>We also define a convenience function, <code>cc()</code>, which automatically quotes input to save typing.</p>
 <p>This use of a reduced subset of R is primarily to ensure that loading a configuration file has no side-effects on a users environment and performs limited computation. Under the hood, <code>load_config()</code> is little more than careful wrapping of <code>base::sys.source()</code> and <code>utils::modifyList()</code> with care taken as to where evaluation takes place.</p>
+<p>Should you want more flexibility, the argument <code>strict = FALSE</code> can be set. This enables all functions from base R. In particular, you can then use <code>::</code> to call in to other packages.</p>
 <h2 id="example">Example</h2>
 <h3 id="configuration-file">Configuration file</h3>
 <p>Configuration files look similar to the following example file that we bundle in the package:</p>

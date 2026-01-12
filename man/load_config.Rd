@@ -5,9 +5,17 @@
 \alias{list_config}
 \title{Load configuration}
 \usage{
-load_config(filename, config, crates, ..., as_is = FALSE, default = "default")
+load_config(
+  filename,
+  config,
+  crates,
+  ...,
+  as_is = FALSE,
+  default = "default",
+  strict = TRUE
+)
 
-list_config(filename)
+list_config(filename, strict = TRUE)
 }
 \arguments{
 \item{filename}{Configuration file to read from.}
@@ -29,6 +37,11 @@ the \code{default} config?
 Defaults to \code{FALSE}.}
 
 \item{default}{The default configuration to use. Not used if \code{as_is = FALSE}.}
+
+\item{strict}{If \code{TRUE} then configuration files can be specified using only a reduced
+subset of base R as well as a handful of other functions.
+
+See details for more information.}
 }
 \value{
 If \code{as_is = FALSE} (default), \code{load_config()} returns a list contain entries
@@ -55,8 +68,9 @@ to the user. If the user specifies an additional list to consider (via the
 given file. It corresponds to \code{names(load_config(filename, as_is = TRUE))}.
 }
 \details{
-Configuration files can be specified using a reduced subset of base R.
-By default this is restricted to the following operators and functions:
+If \code{strict} is \code{TRUE} (default), then configuration files can be specified
+using a reduced subset of base R. By default this is restricted to the
+following operators and functions:
 \itemize{
 \item \verb{<-}, \code{=}, \code{+}, \code{-}, \code{*}, \code{:}
 \item \code{$}, \code{[}, \code{[[}
@@ -73,6 +87,9 @@ By default this is restricted to the following operators and functions:
 
 We also enable a convenience function, \code{cc}, which automatically quotes input
 to save typing.
+
+If \code{strict} is \code{FALSE} then the entire base namespace, as well as \code{cc} and
+\code{modifyList} are made available.
 
 Users can also inject their own functions in to the evaluation environment
 by supplying a list of \link[carrier:crate]{crates} as an additional argument.

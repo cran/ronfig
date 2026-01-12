@@ -17,8 +17,9 @@
 # -------------------------------------------------------------------------
 #' @details
 #'
-#' Configuration files can be specified using a reduced subset of base R.
-#' By default this is restricted to the following operators and functions:
+#' If `strict` is `TRUE` (default), then configuration files can be specified
+#' using a reduced subset of base R. By default this is restricted to the
+#' following operators and functions:
 #'
 #' - `<-`, `=`, `+`, `-`, `*`, `:`
 #' - `$`, `[`, `[[`
@@ -34,6 +35,9 @@
 #'
 #' We also enable a convenience function, `cc`, which automatically quotes input
 #' to save typing.
+#'
+#' If `strict` is `FALSE` then the entire base namespace, as well as `cc` and
+#' `modifyList` are made available.
 #'
 #' Users can also inject their own functions in to the evaluation environment
 #' by supplying a list of [crates][carrier::crate()] as an additional argument.
@@ -56,6 +60,10 @@
 #' A list of [carrier::crate] objects which are used to inject functions in to
 #' the environment where the configuration file will be evaluated.
 #'
+#' @param ...
+#'
+#' Not currently used.
+#'
 #' @param as_is
 #'
 #' Should the configuration file be read in as is, without layering on top of
@@ -67,9 +75,12 @@
 #'
 #' The default configuration to use. Not used if `as_is = FALSE`.
 #'
-#' @param ...
+#' @param strict
 #'
-#' Not currently used.
+#' If `TRUE` then configuration files can be specified using only a reduced
+#' subset of base R as well as a handful of other functions.
+#'
+#' See details for more information.
 #'
 # -------------------------------------------------------------------------
 #' @returns
@@ -122,7 +133,8 @@ load_config <- function(
     crates,
     ...,
     as_is = FALSE,
-    default = "default"
+    default = "default",
+    strict = TRUE
 ) {
     # Check the filename is valid
     if (!is.character(filename) || length(filename) != 1L || is.na(filename))
@@ -166,6 +178,10 @@ load_config <- function(
     if (!as_is && (!is.character(default) || length(default) != 1L || is.na(default)))
         .abort("{.arg default} must be a string.")
 
+    # check strict is bool
+    if (!is.logical(as_is) || length(as_is) != 1L || is.na(as_is))
+        .abort("{.arg strict} must be a boolean.")
+
     # Check the file exist
     if (file.access(filename, mode = 0))
         .abort("File {.file {filename}} does not exist")
@@ -178,26 +194,32 @@ load_config <- function(
     # Ensure modifyList is also available
     modifyList <- utils::modifyList
 
-    # Insert only a few essential functions plus cc and modifyList in to an
-    # empty environment to use as the parent environment to will eventually
-    # source things
+    # If `strict` == TRUE (default) allow only a limited number of functions
+    if (strict) {
 
-    allow_list <- list(
-        c('<-', '=', '+', '-', '*', ':'),
-        c('as.Date'),
-        c('array', 'matrix'),
-        c('list', 'data.frame'),
-        c('c', 'cc'),
-        c('[', '[[', '$'),
-        c('$<-', '[<-'),
-        c('Sys.Date', 'Sys.time'),
-        c('seq','sequence','seq_len'),
-        'file.path',
-        'modifyList'
-    )
-    allowed <- unlist(allow_list)
+        # Insert only a few essential functions plus cc and modifyList in to an
+        # empty environment to use as the parent environment to will eventually
+        # source things
 
-    parent <- list2env(mget(allowed, inherits = TRUE), parent = emptyenv())
+        allow_list <- list(
+            c('<-', '=', '+', '-', '*', ':'),
+            c('as.Date'),
+            c('array', 'matrix'),
+            c('list', 'data.frame'),
+            c('c', 'cc'),
+            c('[', '[[', '$'),
+            c('$<-', '[<-'),
+            c('Sys.Date', 'Sys.time'),
+            c('seq','sequence','seq_len'),
+            'file.path',
+            'modifyList'
+        )
+        allowed <- unlist(allow_list)
+        parent <- list2env(mget(allowed, inherits = TRUE), parent = emptyenv())
+    } else {
+        allowed <- c('cc', 'modifyList')
+        parent <- list2env(mget(allowed, inherits = TRUE), parent = baseenv())
+    }
 
     # Add in any crates supplied by the user
     if (!missing(crates)) {
@@ -227,7 +249,7 @@ load_config <- function(
             # not available in the environment. Errors from sys.source are not
             # classed so we condition on the content of the associated message.
             cnd_msg <- conditionMessage(cond)
-            if (startsWith(cnd_msg, "could not find function ")) {
+            if (startsWith(cnd_msg, "could not find function ")  && strict) {
                 allowed_strings <- vapply(allow_list, toString, "")
                 .abort(
                     c(
@@ -289,10 +311,10 @@ load_config <- function(
 
 #' @export
 #' @rdname load_config
-list_config <- function(filename) {
+list_config <- function(filename, strict = TRUE) {
     call <- sys.call()[1L] # Capture the caller environment for error messaging
     x <- withCallingHandlers(
-        load_config(filename = filename, as_is = TRUE),
+        load_config(filename = filename, as_is = TRUE, strict = strict),
         ronfig_error = function(cnd) {
             .abort("Unable to determine available configurations", parent = cnd, call = call)
         }

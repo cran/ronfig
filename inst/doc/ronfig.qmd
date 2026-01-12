@@ -18,9 +18,9 @@ you have multiple, somewhat overlapping, parameter configurations that you
 want to quickly switch between whilst avoiding, potentially error-inducing, copy
 and paste.
 
-To keep things simple, rather than introducing another language for our
-configuration file, we restrict ourselves to a subset of base R. Currently we
-allow the following set of functions/operators:
+To keep things simple, rather than introducing another language
+for our configuration file, we restrict ourselves to a subset of base R.
+By default we allow the following set of functions/operators:
 
 - `<-`, `=`, `+`, `-`, `*`, `:`
 - `$`, `[`, `[[`
@@ -42,6 +42,10 @@ configuration file has no side-effects on a users environment and performs
 limited computation. Under the hood, `load_config()` is little more than careful
 wrapping of `base::sys.source()` and `utils::modifyList()` with care taken as to
 where evaluation takes place.
+
+Should you want more flexibility, the argument `strict = FALSE` can be set. This
+enables all functions from base R. In particular, you can then use `::` to call
+in to other packages.
 
 ## Example
 

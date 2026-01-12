@@ -279,3 +279,66 @@ test_that("load_config works when config = NULL", {
     }, finally = unlink(filename))
 })
 
+
+test_that("load_config works when strict = FALSE", {
+    skip_if_not_installed("stats")
+
+    tryCatch({
+        filename <- tempfile()
+
+        # try and exercise all of the allowed inputs
+        # TODO: the + 0 to ensure underlying type is double in the mapequal comparison
+        #       needs looking at. Ideally testthat would ignore type for Dates.
+        text <- r"(
+            basic <- list(
+                a = stats::setNames(1, "a"),
+                b = stats::setNames(2, "b")
+            )
+
+            new <- list(
+                b = stats::setNames(2, "c"),
+                c = stats::setNames(3, "d")
+            )
+        )"
+        cat(text, file = filename)
+
+        conf <- load_config(filename, "new", default = "basic", strict = FALSE)
+        expected <- list(
+            a = stats::setNames(1, "a"),
+            b = stats::setNames(2, "c"),
+            c = stats::setNames(3, "d")
+        )
+        expect_mapequal(conf, expected)
+
+    }, finally = unlink(filename))
+})
+
+test_that("load_config works when strict = TRUE and other package called", {
+
+    tryCatch({
+        filename <- tempfile()
+
+        # try and exercise all of the allowed inputs
+        # TODO: the + 0 to ensure underlying type is double in the mapequal comparison
+        #       needs looking at. Ideally testthat would ignore type for Dates.
+        text <- r"(
+            basic <- list(
+                a = stats::setNames(1, "a"),
+                b = stats::setNames(2, "b"),
+            )
+
+            new <- list(
+                b = stats::setNames(2, "c"),
+                c = stats::setNames(3, "d"),
+            )
+        )"
+        cat(text, file = filename)
+
+        expect_snapshot(
+            error = TRUE,
+            load_config(filename, "new", default = "basic")
+        )
+
+    }, finally = unlink(filename))
+})
+

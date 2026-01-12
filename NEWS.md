@@ -1,3 +1,11 @@
+# ronfig 0.0.8
+
+- `load_config()` (and consequently `list_config()`) gain an argument, `strict`.
+  If `TRUE` (default and backwards compatible) then only the documented 
+  subset of base R functions can be used within the configuration file.
+  If `FALSE`, the entire base namespace is made available (in particular, `::`,
+  which allows other calling of other packages).
+
 # ronfig 0.0.7
 
 - Fix bug when calling `load_config()` with `config = NULL`.
