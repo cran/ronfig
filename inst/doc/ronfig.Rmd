@@ -1,16 +1,26 @@
 ---
 title: "Configuration files for R projects"
+output:
+    html:
+        meta:
+            css: ["@default@1.14.24", "@copy-button@1.14.24", "@article@1.14.24", "assets/tweaks.css"]
+            js: ["@copy-button@1.14.24", "@toc-highlight@1.14.24", "@sidenotes@1.14.24"]
+            lang: en
+        options:
+            toc: true
+            js_highlight:
+                package: prism
+                version: 1.29.0
+
 vignette: >
+  %\VignetteEngine{litedown::vignette}
   %\VignetteIndexEntry{Configuration files for R projects}
-  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
-knitr:
-  opts_chunk:
-    collapse: true
-    comment: '#>'
-    error: true
-    message: true
 ---
+
+```{r, include = FALSE}
+litedown::reactor(error = TRUE, message = TRUE, print = NA, fig.height = 5)
+```
 
 ronfig aims to enable intuitive configuration of R projects via a single
 function, `load_config()`. It's raison d'être is to handle the situation where
@@ -71,7 +81,7 @@ str(load_config(file, "debug"))
 str(load_config(file, "forecast"))
 ```
 
-# Loading things as they are
+### Loading things as they are
 
 If we just wish to load the configuration file as is, we can pass the argument
 `as_is = TRUE`. This will load configuration file in to a list. If we specify

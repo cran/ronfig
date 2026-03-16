@@ -342,3 +342,46 @@ test_that("load_config works when strict = TRUE and other package called", {
     }, finally = unlink(filename))
 })
 
+test_that("load_config works as expected when NULLs are present", {
+    tryCatch({
+        filename <- tempfile()
+
+        # try and exercise all of the allowed inputs
+        # TODO: the + 0 to ensure underlying type is double in the mapequal comparison
+        #       needs looking at. Ideally testthat would ignore type for Dates.
+        text <- r"(
+            basic <- list(
+                a = 1L,
+                b = 2.0,
+                c = c("one", "two", "three"),
+                d = as.Date("2020-01-01")[1] + 0:9,
+                e = seq_len(10),
+                f = list(g = 10, h = seq_len(10)),
+                p = file.path('bob', 'george')
+
+            )
+
+            new <- list(b=3.0, f = list(h = matrix(1:9, 3), i = cc(1, 2, 3), j = list(a=1, b = NULL)), m = seq(from = basic$d[1], to = basic$d[3], by = "day") + 0)
+        )"
+        cat(text, file = filename)
+
+        # when as_is = FALSE (default)
+        conf <- load_config(filename, "new", default = "basic")
+        expected <- list(
+            a = 1L,
+            b = 3.0,
+            c = c("one", "two", "three"),
+            d = as.Date("2020-01-01") + 0:9,
+            e = 1:10,
+            f = list(g = 10, h = matrix(1:9, 3), i = c("1", "2", "3"), j = list(a=1, b = NULL)),
+            m = as.Date("2020-01-01") + 0:2,
+            p = file.path('bob', 'george')
+        )
+        expect_mapequal(conf, expected)
+        expect_snapshot(
+            error = TRUE,
+            load_config(filename, "new", default = "basic", allow_null = FALSE)
+        )
+
+    }, finally = unlink(filename))
+})

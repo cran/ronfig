@@ -187,3 +187,12 @@
       * file.path
       * modifyList
 
+# load_config works as expected when NULLs are present
+
+    Code
+      load_config(filename, "new", default = "basic", allow_null = FALSE)
+    Condition
+      Error in `load_config()`:
+      ! Configuration file contains NULL but these are disallowed
+      i set `allow_null = TRUE`, if you want NULL entries.
+

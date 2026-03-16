@@ -82,6 +82,11 @@
 #'
 #' See details for more information.
 #'
+#' @param allow_null
+#'
+#' If `TRUE` then configuration files can contain NULL values. Otherwise, NULL
+#' entries will trigger an error.
+#'
 # -------------------------------------------------------------------------
 #' @returns
 #'
@@ -116,7 +121,10 @@
 #' cat("default <- list(a=mean(1:10))", file = f)
 #'
 #' # will fail as mean() not available
-#' tryCatch(with(load_config(f), a), error = conditionMessage)
+#' tryCatch(
+#'     with(load_config(f), a),
+#'     error = function(cnd) cat(conditionMessage(cnd))
+#' )
 #'
 #' # will work if we inject crated mean
 #' crate <- carrier::crate(function(x) mean(x))
@@ -134,7 +142,8 @@ load_config <- function(
     ...,
     as_is = FALSE,
     default = "default",
-    strict = TRUE
+    strict = TRUE,
+    allow_null = TRUE
 ) {
     # Check the filename is valid
     if (!is.character(filename) || length(filename) != 1L || is.na(filename))
@@ -306,15 +315,24 @@ load_config <- function(
     if (!.all_named(conf))
         .abort("{.arg config} entry ({.val {config}}) must be a non-empty and uniquely-named list.")
 
-    utils::modifyList(out, conf, keep.null = TRUE)
+    out <- utils::modifyList(out, conf, keep.null = TRUE)
+    if (!allow_null && .any_null(out)) {
+        .abort(
+            c(
+                "Configuration file contains NULL but these are disallowed",
+                i = "set {.code allow_null = TRUE}, if you want NULL entries."
+            )
+        )
+    }
+    out
 }
 
 #' @export
 #' @rdname load_config
-list_config <- function(filename, strict = TRUE) {
+list_config <- function(filename, strict = TRUE, allow_null = TRUE) {
     call <- sys.call()[1L] # Capture the caller environment for error messaging
     x <- withCallingHandlers(
-        load_config(filename = filename, as_is = TRUE, strict = strict),
+        load_config(filename = filename, as_is = TRUE, strict = strict, allow_null = allow_null),
         ronfig_error = function(cnd) {
             .abort("Unable to determine available configurations", parent = cnd, call = call)
         }
@@ -348,3 +366,5 @@ list_config <- function(filename, strict = TRUE) {
         class = "ronfig_error"
     )
 }
+
+.any_null <- function(x) any(unlist(if(is.list(x)) lapply(x, .any_null) else is.null(x)))

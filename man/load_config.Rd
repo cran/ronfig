@@ -12,10 +12,11 @@ load_config(
   ...,
   as_is = FALSE,
   default = "default",
-  strict = TRUE
+  strict = TRUE,
+  allow_null = TRUE
 )
 
-list_config(filename, strict = TRUE)
+list_config(filename, strict = TRUE, allow_null = TRUE)
 }
 \arguments{
 \item{filename}{Configuration file to read from.}
@@ -42,6 +43,9 @@ Defaults to \code{FALSE}.}
 subset of base R as well as a handful of other functions.
 
 See details for more information.}
+
+\item{allow_null}{If \code{TRUE} then configuration files can contain NULL values. Otherwise, NULL
+entries will trigger an error.}
 }
 \value{
 If \code{as_is = FALSE} (default), \code{load_config()} returns a list contain entries
@@ -113,7 +117,10 @@ f <- tempfile()
 cat("default <- list(a=mean(1:10))", file = f)
 
 # will fail as mean() not available
-tryCatch(with(load_config(f), a), error = conditionMessage)
+tryCatch(
+    with(load_config(f), a),
+    error = function(cnd) cat(conditionMessage(cnd))
+)
 
 # will work if we inject crated mean
 crate <- carrier::crate(function(x) mean(x))

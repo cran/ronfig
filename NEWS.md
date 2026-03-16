@@ -1,3 +1,14 @@
+# ronfig 0.0.9
+
+- `load_config()` and `list_config()` gain an entry `allow_null` to control
+  whether NULL entries are permitted. If `FALSE` then a NULL entry will trigger
+  an error. This new argument defaults to `TRUE` for backwards compatibility.
+
+- Minor change to documentation example.
+
+- Vignette tweaks and change of underlying vignette engine back to
+  [litedown](https://cran.r-project.org/package=litedown).
+
 # ronfig 0.0.8
 
 - `load_config()` (and consequently `list_config()`) gain an argument, `strict`.
