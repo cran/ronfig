@@ -1,3 +1,10 @@
+# ronfig 0.0.10
+
+- The `allow_null` entry now works when `as_is = TRUE` fixing the erroneous
+  implementation of the previous release. The check will now also only check
+  unclassed lists (i.e. where `is.object(x) == FALSE`) and will stop recursing
+  at this point.
+
 # ronfig 0.0.9
 
 - `load_config()` and `list_config()` gain an entry `allow_null` to control

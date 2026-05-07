@@ -44,8 +44,12 @@ subset of base R as well as a handful of other functions.
 
 See details for more information.}
 
-\item{allow_null}{If \code{TRUE} then configuration files can contain NULL values. Otherwise, NULL
-entries will trigger an error.}
+\item{allow_null}{If \code{TRUE} then configuration files can contain NULL values.
+
+Otherwise, NULL entries will trigger an error.
+
+This works recursively across lists but will not check classed lists (i.e.
+only lists where \code{is.object(x) == FALSE} are checked).}
 }
 \value{
 If \code{as_is = FALSE} (default), \code{load_config()} returns a list contain entries

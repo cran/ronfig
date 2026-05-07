@@ -84,8 +84,12 @@
 #'
 #' @param allow_null
 #'
-#' If `TRUE` then configuration files can contain NULL values. Otherwise, NULL
-#' entries will trigger an error.
+#' If `TRUE` then configuration files can contain NULL values.
+#'
+#' Otherwise, NULL entries will trigger an error.
+#'
+#' This works recursively across lists but will not check classed lists (i.e.
+#' only lists where `is.object(x) == FALSE` are checked).
 #'
 # -------------------------------------------------------------------------
 #' @returns
@@ -277,45 +281,46 @@ load_config <- function(
     )
 
     if (as_is) {
-        if (missing(config) || is.null(config))
+        if (missing(config) || is.null(config)) {
             # the environment as a list
-            return(as.list(envir, all.names = TRUE, sorted = FALSE))
+            out <- as.list(envir, all.names = TRUE, sorted = FALSE)
+        } else {
+            # Check that the 'config' configuration exists in the environment
+            out <- get0(config, envir, inherits = FALSE)
+            if (is.null(out))
+                .abort("Cannot find {.arg config} entry ({.val {config}}) in the rconfig file.")
+        }
+    } else {
+        # Check that the 'default' configuration exists in the environment
+        if (is.null(out <- get0(default, envir, inherits = FALSE)))
+            .abort("Cannot find {.arg default} entry ({.val {default}}) in the rconfig file.")
+
+        # Check that default is a list
+        if (!is.list(out) || is.data.frame(out))
+            .abort("{.arg default} entry must be a named list.")
+
+        # Check that default is a named list
+        if (!.all_named(out))
+            .abort("{.arg default} entry ({.val {default}}) must be a non-empty and uniquely-named list.")
+
+        if (missing(config) || is.null(config))
+            return(out)
 
         # Check that the 'config' configuration exists in the environment
         if (is.null(conf <- get0(config, envir, inherits = FALSE)))
             .abort("Cannot find {.arg config} entry ({.val {config}}) in the rconfig file.")
 
-        return(conf)
+        # Check that config is a list
+        if (!is.list(conf) || is.data.frame(conf))
+            .abort("{.arg config} entry ({.val {config}}) must be a named list.")
+
+        # Check that config is a named list
+        if (!.all_named(conf))
+            .abort("{.arg config} entry ({.val {config}}) must be a non-empty and uniquely-named list.")
+
+        out <- utils::modifyList(out, conf, keep.null = TRUE)
     }
 
-    # Check that the 'default' configuration exists in the environment
-    if (is.null(out <- get0(default, envir, inherits = FALSE)))
-        .abort("Cannot find {.arg default} entry ({.val {default}}) in the rconfig file.")
-
-    # Check that default is a list
-    if (!is.list(out) || is.data.frame(out))
-        .abort("{.arg default} entry must be a named list.")
-
-    # Check that default is a named list
-    if (!.all_named(out))
-        .abort("{.arg default} entry ({.val {default}}) must be a non-empty and uniquely-named list.")
-
-    if (missing(config) || is.null(config))
-        return(out)
-
-    # Check that the 'config' configuration exists in the environment
-    if (is.null(conf <- get0(config, envir, inherits = FALSE)))
-        .abort("Cannot find {.arg config} entry ({.val {config}}) in the rconfig file.")
-
-    # Check that config is a list
-    if (!is.list(conf) || is.data.frame(conf))
-        .abort("{.arg config} entry ({.val {config}}) must be a named list.")
-
-    # Check that config is a named list
-    if (!.all_named(conf))
-        .abort("{.arg config} entry ({.val {config}}) must be a non-empty and uniquely-named list.")
-
-    out <- utils::modifyList(out, conf, keep.null = TRUE)
     if (!allow_null && .any_null(out)) {
         .abort(
             c(
@@ -324,6 +329,7 @@ load_config <- function(
             )
         )
     }
+
     out
 }
 
@@ -367,4 +373,4 @@ list_config <- function(filename, strict = TRUE, allow_null = TRUE) {
     )
 }
 
-.any_null <- function(x) any(unlist(if(is.list(x)) lapply(x, .any_null) else is.null(x)))
+.any_null <- function(x) any(unlist(if(is.list(x) && !is.object(x)) lapply(x, .any_null) else is.null(x)))
